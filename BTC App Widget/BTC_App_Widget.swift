@@ -56,8 +56,8 @@ struct BTC_App_Widget: Widget {
         IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
             BTC_App_WidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("BTC Widget")
+        .description("Track Bitcoin Prices Easily")
     }
 }
 
