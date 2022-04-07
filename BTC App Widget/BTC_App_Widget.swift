@@ -69,6 +69,9 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct BTC_App_WidgetEntryView : View {
+    
+    @Environment(\.widgetFamily) var family
+    @Environment(\.colorScheme) var scheme
     var entry: Provider.Entry
 
     var body: some View {
@@ -79,12 +82,21 @@ struct BTC_App_WidgetEntryView : View {
             
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Header")
-                    Text("$$$$$")
+                    header
+                    Spacer()
                 }
                 .padding()
                 Spacer()
             }
+        }
+    }
+    var header: some View {
+        Group {
+         Text("BTC App")
+                .bold()
+                .font(family == .systemLarge ? .system(size: 40) : .title)
+                .minimumScaleFactor(0.5)
+         Text("Bitcoin")
         }
     }
 }
@@ -116,5 +128,6 @@ struct BTC_App_Widget_Previews: PreviewProvider {
             .previewContext(WidgetPreviewContext(family: .systemLarge))
     }
         .environment(\.colorScheme, .light)
+//        .redacted(reason: .placeholder)
 }
 }
