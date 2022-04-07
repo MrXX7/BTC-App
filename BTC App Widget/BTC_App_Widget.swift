@@ -37,7 +37,35 @@ struct Provider: IntentTimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationIntent
+    var data: BTCData
+    var error: Bool
+    
+    enum DifferenceMode: String {
+        
+        case up = "up",
+             down = "down",
+             error = "error"
+    }
+    var diffMode: DifferenceMode {
+        if error || data.difference == 0.0 {
+            return .error
+        } else if data.difference > 0.0 {
+            return .up
+        } else {
+            return .down
+        }
+    }
+    
+    struct BTCData: Decodable {
+        let price_24h: Double
+        let volume_24h: Double
+        let last_trade_price: Double
+        
+        var difference: Double { price_24h - last_trade_price }
+        
+        static let previewData = BTCData(price_24h: 42727.35, volume_24h: 2.51, last_trade_price: 43689.54)
+        static let error = BTCData(price_24h: 0, volume_24h: 0, last_trade_price: 0)
+    }
 }
 
 struct BTC_App_WidgetEntryView : View {
@@ -63,7 +91,15 @@ struct BTC_App_Widget: Widget {
 
 struct BTC_App_Widget_Previews: PreviewProvider {
     static var previews: some View {
+        
+        Group {
         BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
+        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
+            .previewContext(WidgetPreviewContext(family: .systemMedium))
+        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
+            .previewContext(WidgetPreviewContext(family: .systemLarge))
     }
+        .environment(\.colorScheme, .light)
+}
 }
