@@ -11,11 +11,11 @@ import Intents
 
 struct Provider: IntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationIntent())
+        SimpleEntry(date: Date(), data: .previewData, error: false)
     }
 
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), configuration: configuration)
+        let entry = SimpleEntry(date: Date(), data: .previewData, error: false)
         completion(entry)
     }
 
@@ -26,7 +26,7 @@ struct Provider: IntentTimelineProvider {
         let currentDate = Date()
         for hourOffset in 0 ..< 5 {
             let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
+            let entry = SimpleEntry(date: entryDate, data: .previewData, error: false)
             entries.append(entry)
         }
 
@@ -72,7 +72,20 @@ struct BTC_App_WidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        Text(entry.date, style: .time)
+        ZStack {
+            Image("bg")
+                .resizable()
+                .unredacted()
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Header")
+                    Text("$$$$$")
+                }
+                .padding()
+                Spacer()
+            }
+        }
     }
 }
 
@@ -93,11 +106,13 @@ struct BTC_App_Widget_Previews: PreviewProvider {
     static var previews: some View {
         
         Group {
-        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
+        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), data: .previewData, error: false))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
-        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
+            
+            BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), data: .previewData, error: false))
             .previewContext(WidgetPreviewContext(family: .systemMedium))
-        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), configuration: ConfigurationIntent()))
+            
+        BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), data: .previewData, error: false))
             .previewContext(WidgetPreviewContext(family: .systemLarge))
     }
         .environment(\.colorScheme, .light)
