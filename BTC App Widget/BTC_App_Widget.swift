@@ -106,11 +106,21 @@ struct BTC_App_WidgetEntryView : View {
     }
     var pricing: some View {
         Group {
+            price
             difference
         }
 }
+    var price: some View {
+        Text(entry.error ? "————" : "\(String(format: "$.1f", entry.data.price_24h))")
+            .font(family == .systemSmall ? .body : .system(size: CGFloat(family.rawValue * 25 + 14)))
+            .bold()
+    }
+    
     var difference: some View {
-        Text(entry.error ? "+ -----" : "\(entry.diffMode == .up ? "+" : "")\(String(format: "$.2f", entry.data.difference))")
+        Text(entry.error ? "+ ———" : "\(entry.diffMode == .up ? "+" : "")\(String(format: "$.2f", entry.data.difference))")
+            .font(family == .systemSmall ? .footnote : .title2)
+            .bold()
+            .foregroundColor(Color("\(entry.diffMode)Color"))
     }
     }
 
