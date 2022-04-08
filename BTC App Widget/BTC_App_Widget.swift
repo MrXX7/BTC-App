@@ -84,6 +84,8 @@ struct BTC_App_WidgetEntryView : View {
                 VStack(alignment: .leading) {
                     header
                     Spacer()
+                    pricing
+                    Spacer()
                 }
                 .padding()
                 Spacer()
@@ -97,9 +99,20 @@ struct BTC_App_WidgetEntryView : View {
                 .font(family == .systemLarge ? .system(size: 40) : .title)
                 .minimumScaleFactor(0.5)
          Text("Bitcoin")
+                .font(family == .systemLarge ? .title : .headline)
+                .padding(.top, family == .systemLarge ? -15 : 0)
         }
+        .foregroundColor(Color("headingColor"))
     }
+    var pricing: some View {
+        Group {
+            difference
+        }
 }
+    var difference: some View {
+        Text(entry.error ? "+ -----" : "\(entry.diffMode == .up ? "+" : "")\(String(format: "$.2f", entry.data.difference))")
+    }
+    }
 
 @main
 struct BTC_App_Widget: Widget {
