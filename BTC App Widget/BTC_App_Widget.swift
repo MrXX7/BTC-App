@@ -33,7 +33,7 @@ class NetworkManager {
     }
     }
 
-struct Provider: IntentTimelineProvider {
+struct Provider: TimelineProvider {
     let networkManager = NetworkManager()
     
     func placeholder(in context: Context) -> SimpleEntry {
@@ -48,16 +48,14 @@ struct Provider: IntentTimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        networkManager.getWeatherData { data in
         let timeline = Timeline(
-            entries: [SimpleEntry(date: Date(), data: data ?? .error, error: data == nil)],
+            entries: [SimpleEntry(date: Date(), data: .previewData, error: false)],
             policy: .after(
                 Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
             )
             )
         
     completion(timeline)
-}
 }
 }
 
@@ -174,7 +172,7 @@ struct BTC_App_Widget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider:
-            Provider()) { entry in
+                                Provider()) { entry in
             BTC_App_WidgetEntryView(entry: entry)
         }
         .configurationDisplayName("BTC Widget")
