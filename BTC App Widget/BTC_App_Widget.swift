@@ -9,30 +9,56 @@ import WidgetKit
 import SwiftUI
 import Intents
 
+class NetworkManager {
+    func getWeatherData(completion: @escaping
+                        (SimpleEntry.BTCData?) -> Void) {
+        guard let url = URL(string: "https://api.blockchain.com/v3/exchange/tickers/BTC-USD") else { return completion(nil) }
+    
+        URLSession.shared.dataTask(with: url) { d, res, err in
+            var result: SimpleEntry.BTCData?
+            
+            if let data = d,
+               let response = res as? HTTPURLResponse,
+               response.statusCode == 200 {
+                do {
+                    result = try JSONDecoder().decode(SimpleEntry.BTCData.self, from: data)
+                } catch {
+                    print(error)
+                }
+            }
+            
+            return completion(result)
+        }
+        .resume()
+    }
+    }
+
 struct Provider: IntentTimelineProvider {
+    let networkManager = NetworkManager()
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), data: .previewData, error: false)
     }
 
-    func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), data: .previewData, error: false)
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        networkManager.getWeatherData { data in
+            let entry = SimpleEntry(date: Date(), data: data ?? .error, error: data == nil)
         completion(entry)
     }
-
-    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, data: .previewData, error: false)
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
     }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        networkManager.getWeatherData { data in
+        let timeline = Timeline(
+            entries: [SimpleEntry(date: Date(), data: data ?? .error, error: data == nil)],
+            policy: .after(
+                Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+            )
+            )
+        
+    completion(timeline)
+}
+}
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -147,7 +173,8 @@ struct BTC_App_Widget: Widget {
     let kind: String = "BTC_App_Widget"
 
     var body: some WidgetConfiguration {
-        IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider:
+            Provider()) { entry in
             BTC_App_WidgetEntryView(entry: entry)
         }
         .configurationDisplayName("BTC Widget")
