@@ -63,8 +63,14 @@ struct SimpleEntry: TimelineEntry {
         
         var difference: Double { price_24h - last_trade_price }
         
-        static let previewData = BTCData(price_24h: 42727.35, volume_24h: 2.51, last_trade_price: 43689.54)
-        static let error = BTCData(price_24h: 0, volume_24h: 0, last_trade_price: 0)
+        static let previewData = BTCData(
+            price_24h: 42727.35,
+            volume_24h: 2.51,
+            last_trade_price: 43689.54
+        )
+        
+        static let error = BTCData(price_24h: 0, volume_24h: 0, last_trade_price: 0
+        )
     }
 }
 
@@ -106,24 +112,36 @@ struct BTC_App_WidgetEntryView : View {
     }
     var pricing: some View {
         Group {
+            if family == .systemMedium {
+                HStack(alignment: .bottom) {
+                    price
+                    difference
+                }
+            } else {
             price
             difference
         }
 }
+}
     var price: some View {
-        Text(entry.error ? "————" : "\(String(format: "$.1f", entry.data.price_24h))")
+        Text(entry.error ? "————" : "\(String(format: "%.1f", entry.data.price_24h))")
             .font(family == .systemSmall ? .body : .system(size: CGFloat(family.rawValue * 25 + 14)))
             .bold()
     }
     
     var difference: some View {
-        Text(entry.error ? "+ ———" : "\(entry.diffMode == .up ? "+" : "")\(String(format: "$.2f", entry.data.difference))")
+        Text(entry.error ? "± ————" : "\(entry.diffMode == .up ? "+" : "")\(String(format: "%.2f", entry.data.difference))")
             .font(family == .systemSmall ? .footnote : .title2)
             .bold()
             .foregroundColor(Color("\(entry.diffMode)Color"))
     }
-    }
-
+    var volume: some View {
+        Text("VOLUME: \(entry.error ? "————" : "\(String(format: "%.2f", entry.data.volume_24h))")")
+            .font(.title2)
+            .bold()
+            .foregroundColor(scheme == .dark ? .pink : .purple)
+}
+}
 @main
 struct BTC_App_Widget: Widget {
     let kind: String = "BTC_App_Widget"
@@ -150,7 +168,7 @@ struct BTC_App_Widget_Previews: PreviewProvider {
         BTC_App_WidgetEntryView(entry: SimpleEntry(date: Date(), data: .previewData, error: false))
             .previewContext(WidgetPreviewContext(family: .systemLarge))
     }
-        .environment(\.colorScheme, .light)
+        .environment(\.colorScheme, .dark)
 //        .redacted(reason: .placeholder)
 }
 }
